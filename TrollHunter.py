@@ -63,7 +63,7 @@ def ProcessPost(submission): # Creates the flags for a single post.
         OPSelfCommentRate = OPCommentCounter/CommentCounter
     
     # All of this processing gives us a list of traits for the post.
-    TheList = [LinkID,Troll,AuthorKarmaAgeSpread,LexicalDiversity,FormattingCount,KarmaPerPost,OPSelfCommentRate,AuthorAge]
+    TheList = [LinkID,Troll,AuthorKarmaAgeSpread,LexicalDiversity,FormattingCount,KarmaPerPost,OPSelfCommentRate]
     return TheList
 
 #This is where I initialize the dictionary that will hold all of the information, and pull older data from the csv file on my computer.
@@ -71,11 +71,11 @@ Rows = {}
 ##with open('posts.csv') as posts:
 ##    reader = csv.DictReader(posts)
 ##    for i in reader:
-##        Rows[i['LinkID']] = [i['Troll'],i['AuthorKarmaAgeSpread'],i['LexicalDiversity'],i['FormattingCount'],i['KarmaPerPost'],i['OPSelfCommentRate'],['AuthorAge']]
+##        Rows[i['LinkID']] = [i['Troll'],i['AuthorKarmaAgeSpread'],i['LexicalDiversity'],i['FormattingCount'],i['KarmaPerPost'],i['OPSelfCommentRate']]
 
 # This is where the variables are created.
 for i, submission in enumerate(reddit.subreddit(OurSubreddit).hot(limit=100)):
-    Rows[ProcessPost(submission)[0]] = ProcessPost(submission)[1:8]
+    Rows[ProcessPost(submission)[0]] = ProcessPost(submission)[1:7]
 
 # Moderators flag trolls by selecting the 'Trolling' reason in the modqueue. The bot will remove it and then note the post as a troll.
 for item in reddit.subreddit(OurSubreddit).mod.reports(limit=100):
@@ -101,8 +101,8 @@ for item in reddit.subreddit(OurSubreddit).mod.reports(limit=100):
 
 # I write all of my post data to my csv file.
 with open('posts.csv','w') as posts:
-    fieldnames = ['LinkID','Troll','AuthorKarmaAgeSpread','LexicalDiversity','FormattingCount','KarmaPerPost','OPSelfCommentRate','AuthorAge']
+    fieldnames = ['LinkID','Troll','AuthorKarmaAgeSpread','LexicalDiversity','FormattingCount','KarmaPerPost','OPSelfCommentRate']
     writer = csv.DictWriter(posts, fieldnames = fieldnames, lineterminator = '\n')
     writer.writeheader()
     for row in Rows:
-        writer.writerow({'LinkID':row,'Troll':Rows[row][0],'AuthorKarmaAgeSpread':Rows[row][1],'LexicalDiversity':Rows[row][2],'FormattingCount':Rows[row][3],'KarmaPerPost':Rows[row][4],'OPSelfCommentRate':Rows[row][5],'AuthorAge':Rows[row][6]})
+        writer.writerow({'LinkID':row,'Troll':Rows[row][0],'AuthorKarmaAgeSpread':Rows[row][1],'LexicalDiversity':Rows[row][2],'FormattingCount':Rows[row][3],'KarmaPerPost':Rows[row][4],'OPSelfCommentRate':Rows[row][5]})
