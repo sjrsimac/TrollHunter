@@ -49,10 +49,10 @@ def ProcessPost(submission): # Creates the flags for a single post.
 
 #This is where I initialize the dictionary that will hold all of the information, and pull older data from the csv file on my computer.
 Rows = {}
-##with open('posts.csv') as posts:
-##    reader = csv.DictReader(posts)
-##    for i in reader:
-##        Rows[i['LinkID']] = [i['Troll'],i['AuthorKarmaAgeSpread'],i['LexicalDiversity'],i['FormattingCount']]
+with open('posts.csv') as posts:
+    reader = csv.DictReader(posts)
+    for i in reader:
+        Rows[i['LinkID']] = [i['Troll'],i['AuthorKarmaAgeSpread'],i['LexicalDiversity'],i['FormattingCount']]
 
 # This is where the variables are created.
 for i, submission in enumerate(reddit.subreddit(OurSubreddit).hot(limit=100)):
