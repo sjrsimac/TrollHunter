@@ -54,6 +54,7 @@ def ProcessPost(submission): # Creates the flags for a single post.
     # This is a measure of how often OP comments in his own thread relative to everyone else. (u/justsomebadadvice)
     OPCommentCounter = 0
     CommentCounter = 0
+    OPSelfCommentRate = 0
     submission.comments.replace_more(limit=0)
     for comment in submission.comments.list():
         CommentCounter += 1
