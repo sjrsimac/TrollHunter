@@ -50,9 +50,19 @@ def ProcessPost(submission): # Creates the flags for a single post.
     for i in submission.author.submissions.new(limit=100):
         posts.append(i)
     KarmaPerPost = submission.author.link_karma/len(posts)
+
+    # This is a measure of how often OP comments in his own thread relative to everyone else. (u/justsomebadadvice)
+    OPCommentCounter = 0
+    CommentCounter = 0
+    submission.comments.replace_more(limit=0)
+    for comment in submission.comments.list():
+        CommentCounter += 1
+        if submission.author == comment.author:
+            OPCommentCounter += 1
+    OPSelfCommentRate = OPCommentCounter/CommentCounter
     
     # All of this processing gives us a list of traits for the post.
-    TheList = [LinkID,Troll,AuthorKarmaAgeSpread,LexicalDiversity,FormattingCount,KarmaPerPost]
+    TheList = [LinkID,Troll,AuthorKarmaAgeSpread,LexicalDiversity,FormattingCount,KarmaPerPost,OPSelfCommentRate]
     return TheList
 
 #This is where I initialize the dictionary that will hold all of the information, and pull older data from the csv file on my computer.
@@ -60,14 +70,14 @@ Rows = {}
 ##with open('posts.csv') as posts:
 ##    reader = csv.DictReader(posts)
 ##    for i in reader:
-##        Rows[i['LinkID']] = [i['Troll'],i['AuthorKarmaAgeSpread'],i['LexicalDiversity'],i['FormattingCount'],i['KarmaPerPost']]
+##        Rows[i['LinkID']] = [i['Troll'],i['AuthorKarmaAgeSpread'],i['LexicalDiversity'],i['FormattingCount'],i['KarmaPerPost'],i['OPSelfCommentRate']]
 
 # This is where the variables are created.
-for i, submission in enumerate(reddit.subreddit(OurSubreddit).hot(limit=10)):
-    Rows[ProcessPost(submission)[0]] = ProcessPost(submission)[1:6]
+for i, submission in enumerate(reddit.subreddit(OurSubreddit).hot(limit=100)):
+    Rows[ProcessPost(submission)[0]] = ProcessPost(submission)[1:7]
 
 # Moderators flag trolls by selecting the 'Trolling' reason in the modqueue. The bot will remove it and then note the post as a troll.
-for item in reddit.subreddit(OurSubreddit).mod.reports(limit=10):
+for item in reddit.subreddit(OurSubreddit).mod.reports(limit=100):
     if item.mod_reports[0][0] == 'Trolling':
         if type(item) == praw.models.reddit.comment.Comment:
             item.mod.remove()
@@ -90,8 +100,8 @@ for item in reddit.subreddit(OurSubreddit).mod.reports(limit=10):
 
 # I write all of my post data to my csv file.
 with open('posts.csv','w') as posts:
-    fieldnames = ['LinkID','Troll','AuthorKarmaAgeSpread','LexicalDiversity','FormattingCount','KarmaPerPost']
+    fieldnames = ['LinkID','Troll','AuthorKarmaAgeSpread','LexicalDiversity','FormattingCount','KarmaPerPost','OPSelfCommentRate']
     writer = csv.DictWriter(posts, fieldnames = fieldnames, lineterminator = '\n')
     writer.writeheader()
     for row in Rows:
-        writer.writerow({'LinkID':row,'Troll':Rows[row][0],'AuthorKarmaAgeSpread':Rows[row][1],'LexicalDiversity':Rows[row][2],'FormattingCount':Rows[row][3],'KarmaPerPost':Rows[row][4]})
+        writer.writerow({'LinkID':row,'Troll':Rows[row][0],'AuthorKarmaAgeSpread':Rows[row][1],'LexicalDiversity':Rows[row][2],'FormattingCount':Rows[row][3],'KarmaPerPost':Rows[row][4],'OPSelfCommentRate':Rows[row][5]})
