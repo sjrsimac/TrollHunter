@@ -11,7 +11,7 @@ After collecting this information, TrollHunter checks for *moderator* reports of
 
 For now, TrollHunter is in 100% observation mode, and it's going to observe us. Until now, our policy for troll posts has been quietly removing them from the site and noting the troll in the usernotes. TrollHunter demands one change to that plan: you will no longer remove trolling posts, but [file a report of 'Trolling' in the modqueue](https://goo.gl/photos/hqd1FGVLcJ1VWQXX7). This will tell TrollHunter which posts are trolls, and it will remove every post you report as trolling. If you report a comment as trolling, TrollHunter will remove the comment, but it will not log anything.
 
-##Known Problems
+## Known Problems
 
 * How will we handle posts that are deleted by the user?
 * How will we handle authors that their accounts, but not the post?
