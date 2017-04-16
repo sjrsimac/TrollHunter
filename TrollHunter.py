@@ -12,7 +12,7 @@ reddit = praw.Reddit(client_id = client_id,
                      username = username,
                      password = password)
 
-OurSubreddit = 'sexpollbottest'
+OurSubreddit = 'relationships'
                      
 #This is how you can check the connection. It should say 'False'.
 #print(reddit.read_only)
