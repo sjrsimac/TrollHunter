@@ -12,7 +12,7 @@ reddit = praw.Reddit(client_id = client_id,
                      username = username,
                      password = password)
 
-OurSubreddit = 'sexpollbottest'
+OurSubreddit = 'relationships'
                      
 #This is how you can check the connection. It should say 'False'.
 #print(reddit.read_only)
@@ -37,7 +37,7 @@ def ProcessPost(submission): # Creates the flags for a single post.
     else:
         LexicalDiversity = 0
     # The formatting variable is looking for lists, headers, bolding, italicizing, and horizontal lines.
-    HeadersBoldingListsSeparators = re.findall(r'[*#]+\S+',submission.selftext)
+    HeadersBoldingListsSeparators = re.findall(r'[*#]+\S*',submission.selftext)
     NumberedLists = re.findall(r'\d\.\s+',submission.selftext)
     HyphenListsAndSeparators = re.findall(r'\-+\s+',submission.selftext)
     PlusLists = re.findall(r'\+\s+',submission.selftext)
@@ -59,10 +59,11 @@ def ProcessPost(submission): # Creates the flags for a single post.
         CommentCounter += 1
         if submission.author == comment.author:
             OPCommentCounter += 1
-    OPSelfCommentRate = OPCommentCounter/CommentCounter
+    if CommentCounter != 0:
+        OPSelfCommentRate = OPCommentCounter/CommentCounter
     
     # All of this processing gives us a list of traits for the post.
-    TheList = [LinkID,Troll,AuthorKarmaAgeSpread,LexicalDiversity,FormattingCount,KarmaPerPost,OPSelfCommentRate]
+    TheList = [LinkID,Troll,AuthorKarmaAgeSpread,LexicalDiversity,FormattingCount,KarmaPerPost,OPSelfCommentRate,AuthorAge]
     return TheList
 
 #This is where I initialize the dictionary that will hold all of the information, and pull older data from the csv file on my computer.
@@ -70,22 +71,22 @@ Rows = {}
 ##with open('posts.csv') as posts:
 ##    reader = csv.DictReader(posts)
 ##    for i in reader:
-##        Rows[i['LinkID']] = [i['Troll'],i['AuthorKarmaAgeSpread'],i['LexicalDiversity'],i['FormattingCount'],i['KarmaPerPost'],i['OPSelfCommentRate']]
+##        Rows[i['LinkID']] = [i['Troll'],i['AuthorKarmaAgeSpread'],i['LexicalDiversity'],i['FormattingCount'],i['KarmaPerPost'],i['OPSelfCommentRate'],['AuthorAge']]
 
 # This is where the variables are created.
 for i, submission in enumerate(reddit.subreddit(OurSubreddit).hot(limit=100)):
-    Rows[ProcessPost(submission)[0]] = ProcessPost(submission)[1:7]
+    Rows[ProcessPost(submission)[0]] = ProcessPost(submission)[1:8]
 
 # Moderators flag trolls by selecting the 'Trolling' reason in the modqueue. The bot will remove it and then note the post as a troll.
 for item in reddit.subreddit(OurSubreddit).mod.reports(limit=100):
     if item.mod_reports[0][0] == 'Trolling':
         if type(item) == praw.models.reddit.comment.Comment:
-            item.mod.remove()
+##            item.mod.remove() # Do not uncomment this line until we go live!
             print("This is a comment.")
         elif type(item) == praw.models.reddit.submission.Submission:
             print("This is a submission.", item.id)
             Rows[item.id][0] = 1
-            item.mod.remove()
+##            item.mod.remove() # Do not uncomment this line until we go live!
 
 # This is the machine learning portion of the program. It's commented out because I want to collect data before making a model.
 ##from sklearn import tree # Visit http://scikit-learn.org/stable/install.html to learn how to install this package.
@@ -100,8 +101,8 @@ for item in reddit.subreddit(OurSubreddit).mod.reports(limit=100):
 
 # I write all of my post data to my csv file.
 with open('posts.csv','w') as posts:
-    fieldnames = ['LinkID','Troll','AuthorKarmaAgeSpread','LexicalDiversity','FormattingCount','KarmaPerPost','OPSelfCommentRate']
+    fieldnames = ['LinkID','Troll','AuthorKarmaAgeSpread','LexicalDiversity','FormattingCount','KarmaPerPost','OPSelfCommentRate','AuthorAge']
     writer = csv.DictWriter(posts, fieldnames = fieldnames, lineterminator = '\n')
     writer.writeheader()
     for row in Rows:
-        writer.writerow({'LinkID':row,'Troll':Rows[row][0],'AuthorKarmaAgeSpread':Rows[row][1],'LexicalDiversity':Rows[row][2],'FormattingCount':Rows[row][3],'KarmaPerPost':Rows[row][4],'OPSelfCommentRate':Rows[row][5]})
+        writer.writerow({'LinkID':row,'Troll':Rows[row][0],'AuthorKarmaAgeSpread':Rows[row][1],'LexicalDiversity':Rows[row][2],'FormattingCount':Rows[row][3],'KarmaPerPost':Rows[row][4],'OPSelfCommentRate':Rows[row][5],'AuthorAge':Rows[row][6]})
