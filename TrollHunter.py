@@ -12,7 +12,7 @@ reddit = praw.Reddit(client_id = client_id,
                      username = username,
                      password = password)
 
-OurSubreddit = 'relationships'
+OurSubreddit = 'sexpollbottest'
                      
 #This is how you can check the connection. It should say 'False'.
 #print(reddit.read_only)
@@ -43,20 +43,28 @@ def ProcessPost(submission): # Creates the flags for a single post.
     PlusLists = re.findall(r'\+\s+',submission.selftext)
     formatting = HeadersBoldingListsSeparators + NumberedLists + HyphenListsAndSeparators + PlusLists
     FormattingCount = len(formatting)
+
+    # These criteria were developed by other moderators.
+    # This is a measure of how much link karma a redditor has compared to his number of posts. (u/ofthrees)
+    posts = []
+    for i in submission.author.submissions.new(limit=100):
+        posts.append(i)
+    KarmaPerPost = submission.author.link_karma/len(posts)
+    
     # All of this processing gives us a list of traits for the post.
-    TheList = [LinkID,Troll,AuthorKarmaAgeSpread,LexicalDiversity,FormattingCount]
+    TheList = [LinkID,Troll,AuthorKarmaAgeSpread,LexicalDiversity,FormattingCount,KarmaPerPost]
     return TheList
 
 #This is where I initialize the dictionary that will hold all of the information, and pull older data from the csv file on my computer.
 Rows = {}
-with open('posts.csv') as posts:
-    reader = csv.DictReader(posts)
-    for i in reader:
-        Rows[i['LinkID']] = [i['Troll'],i['AuthorKarmaAgeSpread'],i['LexicalDiversity'],i['FormattingCount']]
+##with open('posts.csv') as posts:
+##    reader = csv.DictReader(posts)
+##    for i in reader:
+##        Rows[i['LinkID']] = [i['Troll'],i['AuthorKarmaAgeSpread'],i['LexicalDiversity'],i['FormattingCount'],i['KarmaPerPost']]
 
 # This is where the variables are created.
-for i, submission in enumerate(reddit.subreddit(OurSubreddit).hot(limit=100)):
-    Rows[ProcessPost(submission)[0]] = ProcessPost(submission)[1:5]
+for i, submission in enumerate(reddit.subreddit(OurSubreddit).hot(limit=10)):
+    Rows[ProcessPost(submission)[0]] = ProcessPost(submission)[1:6]
 
 # Moderators flag trolls by selecting the 'Trolling' reason in the modqueue. The bot will remove it and then note the post as a troll.
 for item in reddit.subreddit(OurSubreddit).mod.reports(limit=10):
@@ -74,16 +82,16 @@ for item in reddit.subreddit(OurSubreddit).mod.reports(limit=10):
 ##features = []
 ##labels = []
 ##for id,item in enumerate(Rows):
-##    features.append(Rows[item][1:4])
+##    features.append(Rows[item][1:5])
 ##    labels.append(Rows[item][0])
 ##clf = tree.DecisionTreeClassifier()
 ##clf = clf.fit(features,labels)
-##print(clf.predict([[654535, .681535, 4]])) # This line is just a test of the prediction function.
+##print(clf.predict([[654535, .681535, 4, 2352]])) # This line is just a test of the prediction function.
 
 # I write all of my post data to my csv file.
 with open('posts.csv','w') as posts:
-    fieldnames = ['LinkID','Troll','AuthorKarmaAgeSpread','LexicalDiversity','FormattingCount']
+    fieldnames = ['LinkID','Troll','AuthorKarmaAgeSpread','LexicalDiversity','FormattingCount','KarmaPerPost']
     writer = csv.DictWriter(posts, fieldnames = fieldnames, lineterminator = '\n')
     writer.writeheader()
     for row in Rows:
-        writer.writerow({'LinkID':row,'Troll':Rows[row][0],'AuthorKarmaAgeSpread':Rows[row][1],'LexicalDiversity':Rows[row][2],'FormattingCount':Rows[row][3]})
+        writer.writerow({'LinkID':row,'Troll':Rows[row][0],'AuthorKarmaAgeSpread':Rows[row][1],'LexicalDiversity':Rows[row][2],'FormattingCount':Rows[row][3],'KarmaPerPost':Rows[row][4]})
