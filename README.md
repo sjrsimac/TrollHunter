@@ -14,4 +14,4 @@ For now, TrollHunter is in 100% observation mode. To tell TrollHunter to note a 
 ## Open Problems
 
 * How will we handle posts that are deleted by the user?
-* How will we handle authors that their accounts, but not the post?
+* How will we handle authors that delete their accounts, but not the post?
