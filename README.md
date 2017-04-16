@@ -1,7 +1,7 @@
 # TrollHunter
 This is a reddit bot, written in Python, that uses machine learning to identify trolls.
 
-TrollHunter measures three traits for each post.
+TrollHunter measures the following traits for each post. This list is not exhaustive because TrollHunter is under active development.
 
 * The difference between an author's age and his karma level. This is designed to catch trolls that have a bank of accounts that are old enough to get past age filters, but have almost no karma because the accounts have been sitting idle, just waiting to be used.
 * The variety of words in a post. This measure is called Lexical Diversity, and it's defined as the number of unique words in a post divided by the total number of words in a post.
